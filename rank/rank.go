@@ -56,7 +56,15 @@ func Run() {
 
 	ss := rankedLeague(teams)
 
-	for _, entry := range ss {
+	printRankedLeague(ss)
+}
+
+func printRankedLeague(league RankedLeague) {
+	for _, entry := range league {
+		if entry.Points == 1 {
+			fmt.Printf("%d. %s, %d pt\n", entry.Rank, entry.TeamName, entry.Points)
+			continue
+		}
 		fmt.Printf("%d. %s, %d pts\n", entry.Rank, entry.TeamName, entry.Points)
 	}
 }
