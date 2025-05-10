@@ -273,3 +273,60 @@ func Test_updateLeague(t *testing.T) {
 		t.Errorf("league[Team B] = %d, want 4", league["Team B"])
 	}
 }
+
+func Test_rankedLeague(t *testing.T) {
+	type args struct {
+		league LeaguePoints
+	}
+	tests := []struct {
+		name string
+		args args
+		want RankedLeague
+	}{
+		{
+			name: "Example",
+			args: args{
+				league: LeaguePoints{
+					"Grouches":   0,
+					"Snakes":     1,
+					"FC Awesome": 1,
+					"Tarantulas": 6,
+					"Lions":      5,
+				},
+			},
+			want: RankedLeague{
+				{TeamName: "Tarantulas", Points: 6, Rank: 1},
+				{TeamName: "Lions", Points: 5, Rank: 2},
+				{TeamName: "FC Awesome", Points: 1, Rank: 3},
+				{TeamName: "Snakes", Points: 1, Rank: 3},
+				{TeamName: "Grouches", Points: 0, Rank: 5},
+			},
+		},
+		{
+			name: "Everyone first",
+			args: args{
+				league: LeaguePoints{
+					"FC Awesome": 5,
+					"Snakes":     5,
+					"Tarantulas": 5,
+					"Lions":      5,
+					"Grouches":   5,
+				},
+			},
+			want: RankedLeague{
+				{TeamName: "FC Awesome", Points: 5, Rank: 1},
+				{TeamName: "Grouches", Points: 5, Rank: 1},
+				{TeamName: "Lions", Points: 5, Rank: 1},
+				{TeamName: "Snakes", Points: 5, Rank: 1},
+				{TeamName: "Tarantulas", Points: 5, Rank: 1},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := rankedLeague(tt.args.league); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("rankedLeague() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
