@@ -9,3 +9,6 @@ test:
 run: build
 	@chmod +x ./leaguerank
 	@./leaguerank
+
+clean:
+	@rm leaguerank
