@@ -36,6 +36,7 @@ func Run() {
 		match, err := parseMatch(scanner.Text())
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(1)
 		}
 		updateLeague(teams, match)
 	}
