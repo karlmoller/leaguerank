@@ -170,7 +170,7 @@ func Test_parseMatch(t *testing.T) {
 			args: args{
 				s: "",
 			},
-			wantErr: false, // empty line is valid, does nothing
+			wantErr: true,
 		},
 		{
 			name: "Missing team -- first part",
