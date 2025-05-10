@@ -1,7 +1,7 @@
 package main
 
 import (
-	"league_rank/rank"
+	"github.com/karlmoller/leaguerank/rank"
 )
 
 func main() {

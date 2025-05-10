@@ -1,3 +1,3 @@
-module league_rank
+module github.com/karlmoller/leaguerank
 
 go 1.24.3
