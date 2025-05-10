@@ -123,9 +123,26 @@ func parseMatch(s string, lineNumber int) (Match, error) {
 }
 
 func splitTeamInfo(teamInfo string, lineNumber int) (string, int, error) {
+	// len has to be at least 1 char per name, comma, and 1 digit score each.
+	if len(teamInfo) < 5 {
+		return "", 0, fmt.Errorf("line: %d, invalid format: %s", lineNumber, teamInfo)
+	}
+
+	if strings.HasPrefix(teamInfo, " ") {
+		return "", 0, fmt.Errorf("line: %d, invalid starting with space: %s", lineNumber, teamInfo)
+	}
+
+	if strings.HasSuffix(teamInfo, " ") {
+		return "", 0, fmt.Errorf("line: %d, invalid ending with space: %s", lineNumber, teamInfo)
+	}
+
 	idxLastSpace := strings.LastIndex(teamInfo, " ")
 
 	teamName := strings.TrimSpace(teamInfo[:idxLastSpace])
+
+	if teamName == "," {
+		return "", 0, fmt.Errorf("line: %d, invalid empty team name: %s", lineNumber, teamName)
+	}
 
 	scoreStr := strings.TrimSpace(teamInfo[idxLastSpace:])
 
@@ -135,6 +152,9 @@ func splitTeamInfo(teamInfo string, lineNumber int) (string, int, error) {
 	}
 	if score < 0 {
 		return "", 0, fmt.Errorf("line: %d, invalid negative score: %d", lineNumber, score)
+	}
+	if len(teamName) < 1 {
+		return "", 0, fmt.Errorf("line: %d, invalid empty team name: %s", lineNumber, teamName)
 	}
 	return teamName, score, nil
 }
