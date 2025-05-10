@@ -32,13 +32,15 @@ func Run() {
 	teams := make(map[string]int)
 
 	scanner := bufio.NewScanner(os.Stdin)
+	line := 1
 	for scanner.Scan() {
-		match, err := parseMatch(scanner.Text())
+		match, err := parseMatch(scanner.Text(), line)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: %v\n", err)
 			os.Exit(1)
 		}
 		updateLeague(teams, match)
+		line++
 	}
 
 	ss := rankedLeague(teams)
@@ -89,22 +91,22 @@ func rankedLeague(league LeaguePoints) RankedLeague {
 	return ss
 }
 
-func parseMatch(s string) (Match, error) {
+func parseMatch(s string, lineNumber int) (Match, error) {
 	if len(s) < 1 { // empty line
 		return Match{}, nil
 	}
 	parts := strings.Split(s, ",")
 	if len(parts) != 2 {
-		panic("invalid input, expected 2 parts")
+		return Match{}, fmt.Errorf("line: %d, invalid match format: %s", lineNumber, s)
 	}
 	team1Info := parts[0]
 	team2Info := parts[1]
 
-	team1Name, team1Score, err := splitTeamInfo(team1Info)
+	team1Name, team1Score, err := splitTeamInfo(team1Info, lineNumber)
 	if err != nil {
 		return Match{}, err
 	}
-	team2Name, team2Score, err := splitTeamInfo(team2Info)
+	team2Name, team2Score, err := splitTeamInfo(team2Info, lineNumber)
 	if err != nil {
 		return Match{}, err
 	}
@@ -120,7 +122,7 @@ func parseMatch(s string) (Match, error) {
 	}, nil
 }
 
-func splitTeamInfo(teamInfo string) (string, int, error) {
+func splitTeamInfo(teamInfo string, lineNumber int) (string, int, error) {
 	idxLastSpace := strings.LastIndex(teamInfo, " ")
 
 	teamName := strings.TrimSpace(teamInfo[:idxLastSpace])
@@ -132,7 +134,7 @@ func splitTeamInfo(teamInfo string) (string, int, error) {
 		return "", 0, err
 	}
 	if score < 0 {
-		return "", 0, fmt.Errorf("invalid negative score: %d", score)
+		return "", 0, fmt.Errorf("line: %d, invalid negative score: %d", lineNumber, score)
 	}
 	return teamName, score, nil
 }
