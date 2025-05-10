@@ -1,6 +1,9 @@
 package rank
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func Test_splitTeamInfo(t *testing.T) {
 	type args struct {
@@ -54,7 +57,9 @@ func Test_splitTeamInfo(t *testing.T) {
 				teamInfo:   "     Some Team Name 1",
 				lineNumber: 1,
 			},
-			wantErr: true,
+			wantErr:   false,
+			wantName:  "Some Team Name",
+			wantScore: 1,
 		},
 		{
 			name: "Ending with space",
@@ -62,7 +67,9 @@ func Test_splitTeamInfo(t *testing.T) {
 				teamInfo:   "Some Team Name 1 ",
 				lineNumber: 1,
 			},
-			wantErr: true,
+			wantErr:   false,
+			wantName:  "Some Team Name",
+			wantScore: 1,
 		},
 		{
 			name: "Ending with comma",
@@ -108,6 +115,87 @@ func Test_splitTeamInfo(t *testing.T) {
 			}
 			if got1 != tt.wantScore {
 				t.Errorf("splitTeamInfo() got1 = %v, want %v", got1, tt.wantScore)
+			}
+		})
+	}
+}
+
+func Test_parseMatch(t *testing.T) {
+	type args struct {
+		s          string
+		lineNumber int
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    Match
+		wantErr bool
+	}{
+		{
+			name: "Valid Match",
+			args: args{
+				s:          "Team A 1, Team B 2",
+				lineNumber: 1,
+			},
+			want: Match{
+				Team1: TeamScore{
+					TeamName: "Team A",
+					Score:    1,
+				},
+				Team2: TeamScore{
+					TeamName: "Team B",
+					Score:    2,
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "Invalid Match -- no Score Team B",
+			args: args{
+				s:          "Team A 1, Team B",
+				lineNumber: 1,
+			},
+			wantErr: true,
+		},
+		{
+			name: "Missing team",
+			args: args{
+				s:          "Foo 1,",
+				lineNumber: 1,
+			},
+			wantErr: true,
+		},
+		{
+			name: "Empty line",
+			args: args{
+				s: "",
+			},
+			wantErr: false, // empty line is valid, does nothing
+		},
+		{
+			name: "Missing team -- first part",
+			args: args{
+				s: ", Bar 5",
+			},
+			wantErr: true,
+		},
+		{
+			name: "Too many parts",
+			args: args{
+				s: "Foo 1, Bar 2, Baz 3",
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := parseMatch(tt.args.s, tt.args.lineNumber)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("parseMatch() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("parseMatch() got = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -92,7 +92,7 @@ func rankedLeague(league LeaguePoints) RankedLeague {
 }
 
 func parseMatch(s string, lineNumber int) (Match, error) {
-	if len(s) < 1 { // empty line
+	if len(s) < 1 { // empty line, allow, does nothing
 		return Match{}, nil
 	}
 	parts := strings.Split(s, ",")
@@ -128,13 +128,7 @@ func splitTeamInfo(teamInfo string, lineNumber int) (string, int, error) {
 		return "", 0, fmt.Errorf("line: %d, invalid format: %s", lineNumber, teamInfo)
 	}
 
-	if strings.HasPrefix(teamInfo, " ") {
-		return "", 0, fmt.Errorf("line: %d, invalid starting with space: %s", lineNumber, teamInfo)
-	}
-
-	if strings.HasSuffix(teamInfo, " ") {
-		return "", 0, fmt.Errorf("line: %d, invalid ending with space: %s", lineNumber, teamInfo)
-	}
+	teamInfo = strings.TrimSpace(teamInfo)
 
 	idxLastSpace := strings.LastIndex(teamInfo, " ")
 
