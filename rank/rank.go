@@ -43,6 +43,10 @@ func Run() {
 	for scanner.Scan() {
 		match, err := parseMatch(scanner.Text(), line)
 		if err != nil {
+			if errors.Is(err, errEmptyLine) {
+				// empty line, do nothing, lenient on whitespace
+				continue
+			}
 			fmt.Fprintf(os.Stderr, "error: %v\n", err)
 			os.Exit(1)
 		}
@@ -110,9 +114,11 @@ func rankedLeague(league LeaguePoints) RankedLeague {
 	return ss
 }
 
+var errEmptyLine error = fmt.Errorf("empty line")
+
 func parseMatch(s string, lineNumber int) (Match, error) {
 	if len(s) < 1 { // empty line, allow, does nothing
-		return Match{}, nil
+		return Match{}, errEmptyLine
 	}
 	parts := strings.Split(s, ",")
 	if len(parts) != 2 {
