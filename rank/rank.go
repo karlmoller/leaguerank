@@ -2,6 +2,7 @@ package rank
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"sort"
