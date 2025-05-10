@@ -11,7 +11,7 @@ import (
 
 type TeamScore struct {
 	TeamName string
-	Points   int
+	Score    int
 }
 
 type Match struct {
@@ -21,10 +21,12 @@ type Match struct {
 
 type LeagueEntry struct {
 	TeamName string
+	Points   int
 	Rank     int
 }
 
-type League map[string]int
+type RankedLeague []LeagueEntry
+type LeaguePoints map[string]int
 
 func Run() {
 	teams := make(map[string]int)
@@ -37,9 +39,22 @@ func Run() {
 		}
 		updateLeague(teams, match)
 	}
-	ss := make([]TeamScore, 0, len(teams))
-	for teamName, points := range teams {
-		ss = append(ss, TeamScore{
+
+	ss := rankedLeague(teams)
+
+	for _, entry := range ss {
+		fmt.Printf("%d. %s, %d pts\n", entry.Rank, entry.TeamName, entry.Points)
+	}
+}
+
+func rankedLeague(league LeaguePoints) RankedLeague {
+	if len(league) == 0 {
+		return nil // do nothing
+	}
+
+	ss := make(RankedLeague, 0, len(league))
+	for teamName, points := range league {
+		ss = append(ss, LeagueEntry{
 			TeamName: teamName,
 			Points:   points,
 		})
@@ -52,26 +67,25 @@ func Run() {
 		return ss[i].TeamName < ss[j].TeamName
 	})
 
-	if len(ss) < 1 {
-		os.Exit(0)
-	}
-
 	currentRank := 1
 
 	// handle the first case separately to keep the loop cleaner
-	fmt.Printf("%d. %s, %d pts\n", currentRank, ss[0].TeamName, ss[0].Points)
+	//fmt.Printf("%d. %s, %d pts\n", currentRank, ss[0].TeamName, ss[0].Points)
+
+	ss[0].Rank = currentRank
 
 	// rest of the teams
 	for i := 1; i < len(ss); i++ {
 		if ss[i].Points == ss[i-1].Points {
 			// equal points, same rank
-			fmt.Printf("%d. %s, %d pts\n", currentRank, ss[i].TeamName, ss[i].Points)
+			ss[i].Rank = currentRank
 		} else {
 			// if not in the same rank, use alice idx i + 1 as the rank (counting from 1)
 			currentRank = i + 1
-			fmt.Printf("%d. %s, %d pts\n", currentRank, ss[i].TeamName, ss[i].Points)
+			ss[i].Rank = currentRank
 		}
 	}
+	return ss
 }
 
 func parseMatch(s string) (Match, error) {
@@ -96,11 +110,11 @@ func parseMatch(s string) (Match, error) {
 	return Match{
 		Team1: TeamScore{
 			TeamName: team1Name,
-			Points:   team1Score,
+			Score:    team1Score,
 		},
 		Team2: TeamScore{
 			TeamName: team2Name,
-			Points:   team2Score,
+			Score:    team2Score,
 		},
 	}, nil
 }
@@ -122,16 +136,20 @@ func splitTeamInfo(teamInfo string) (string, int, error) {
 	return teamName, score, nil
 }
 
-func updateLeague(league League, match Match) {
-	if match.Team1.Points > match.Team2.Points {
+func updateLeague(league LeaguePoints, match Match) {
+	if league == nil {
+		league = make(LeaguePoints)
+	}
+	
+	if match.Team1.Score > match.Team2.Score {
 		league[match.Team1.TeamName] += 3
 		league[match.Team2.TeamName] += 0
 	}
-	if match.Team1.Points < match.Team2.Points {
+	if match.Team1.Score < match.Team2.Score {
 		league[match.Team2.TeamName] += 3
 		league[match.Team1.TeamName] += 0
 	}
-	if match.Team1.Points == match.Team2.Points {
+	if match.Team1.Score == match.Team2.Score {
 		league[match.Team1.TeamName] += 1
 		league[match.Team2.TeamName] += 1
 	}
