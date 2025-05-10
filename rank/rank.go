@@ -174,6 +174,6 @@ func updateLeague(league LeaguePoints, match Match) {
 	}
 	if match.Team1.Score == match.Team2.Score {
 		league[match.Team1.TeamName] += tie
-		league[match.Team2.TeamName] += loss
+		league[match.Team2.TeamName] += tie
 	}
 }
