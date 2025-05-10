@@ -200,3 +200,76 @@ func Test_parseMatch(t *testing.T) {
 		})
 	}
 }
+
+func Test_updateLeague(t *testing.T) {
+	league := make(LeaguePoints)
+
+	match := Match{
+		Team1: TeamScore{
+			TeamName: "Team A",
+			Score:    1,
+		},
+		Team2: TeamScore{
+			TeamName: "Team B",
+			Score:    2,
+		},
+	}
+	err := updateLeague(league, match)
+	if err != nil {
+		t.Errorf("error: %v", err)
+	}
+
+	if league == nil {
+		t.Errorf("league is nil")
+	}
+	if league["Team A"] != 0 {
+		t.Errorf("league[Team A] = %d, want 0", league["Team A"])
+	}
+	if league["Team B"] != 3 {
+		t.Errorf("league[Team B] = %d, want 0", league["Team B"])
+	}
+
+	match2 := Match{
+		Team1: TeamScore{
+			TeamName: "Team A",
+			Score:    2,
+		},
+		Team2: TeamScore{
+			TeamName: "Team B",
+			Score:    1,
+		},
+	}
+
+	err = updateLeague(league, match2)
+	if err != nil {
+		t.Errorf("error: %v", err)
+	}
+	if league["Team A"] != 3 {
+		t.Errorf("league[Team A] = %d, want 3", league["Team A"])
+	}
+	if league["Team B"] != 3 {
+		t.Errorf("league[Team B] = %d, want 3", league["Team B"])
+	}
+
+	matchTied := Match{
+		Team1: TeamScore{
+			TeamName: "Team A",
+			Score:    2,
+		},
+		Team2: TeamScore{
+			TeamName: "Team B",
+			Score:    2,
+		},
+	}
+
+	err = updateLeague(league, matchTied)
+	if err != nil {
+		t.Errorf("error: %v", err)
+	}
+	if league["Team A"] != 4 {
+		t.Errorf("league[Team A] = %d, want 4", league["Team A"])
+	}
+	if league["Team B"] != 4 {
+		t.Errorf("league[Team B] = %d, want 4", league["Team B"])
+	}
+}

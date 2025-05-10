@@ -39,13 +39,18 @@ func Run() {
 
 	scanner := bufio.NewScanner(os.Stdin)
 	line := 1
+
 	for scanner.Scan() {
 		match, err := parseMatch(scanner.Text(), line)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: %v\n", err)
 			os.Exit(1)
 		}
-		updateLeague(teams, match)
+		err = updateLeague(teams, match)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(1)
+		}
 		line++
 	}
 
@@ -159,9 +164,9 @@ func splitTeamInfo(teamInfo string, lineNumber int) (string, int, error) {
 	return teamName, score, nil
 }
 
-func updateLeague(league LeaguePoints, match Match) {
+func updateLeague(league LeaguePoints, match Match) error {
 	if league == nil {
-		league = make(LeaguePoints)
+		return fmt.Errorf("league is nil")
 	}
 
 	if match.Team1.Score > match.Team2.Score {
@@ -176,4 +181,5 @@ func updateLeague(league LeaguePoints, match Match) {
 		league[match.Team1.TeamName] += tie
 		league[match.Team2.TeamName] += tie
 	}
+	return nil
 }
