@@ -25,6 +25,12 @@ type LeagueEntry struct {
 	Rank     int
 }
 
+const (
+	win  = 3
+	tie  = 1
+	loss = 0
+)
+
 type RankedLeague []LeagueEntry
 type LeaguePoints map[string]int
 
@@ -159,15 +165,15 @@ func updateLeague(league LeaguePoints, match Match) {
 	}
 
 	if match.Team1.Score > match.Team2.Score {
-		league[match.Team1.TeamName] += 3
-		league[match.Team2.TeamName] += 0
+		league[match.Team1.TeamName] += win
+		league[match.Team2.TeamName] += loss
 	}
 	if match.Team1.Score < match.Team2.Score {
-		league[match.Team2.TeamName] += 3
-		league[match.Team1.TeamName] += 0
+		league[match.Team2.TeamName] += win
+		league[match.Team1.TeamName] += loss
 	}
 	if match.Team1.Score == match.Team2.Score {
-		league[match.Team1.TeamName] += 1
-		league[match.Team2.TeamName] += 1
+		league[match.Team1.TeamName] += win
+		league[match.Team2.TeamName] += loss
 	}
 }
